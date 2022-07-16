@@ -1,0 +1,78 @@
+import { StyleHTMLAttributes } from "react";
+import styled from "styled-components";
+import { Meal, type Kondate } from "../models/Kondate";
+
+const weekdays = "月火水木金土日";
+
+const MealBoxWrapper = styled.div<{ color: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6rem;
+  text-align: center
+  overflow: hidden;
+  border: solid 1px white;
+  background-color: ${(props) => props.color};
+`;
+
+const MealBox = (props: {
+  color: string;
+  children: React.ReactElement | string;
+  style?: StyleHTMLAttributes<HTMLDivElement>;
+}) => {
+  return (
+    <MealBoxWrapper color={props.color} style={props.style}>
+      <span>{props.children}</span>
+    </MealBoxWrapper>
+  );
+};
+
+const KondateItem = (props: { meal: Meal }) => {
+  return (
+    <div style={{ display: "block", marginBottom: "3px" }}>
+      <div style={{ display: "flex" }}>
+        <MealBox color={"#FFFFCC"}>{props.meal.c}</MealBox>
+        <MealBox color={"#FFEEFF"}>{props.meal.p}</MealBox>
+      </div>
+      <div style={{ display: "flex" }}>
+        <MealBox color={"#99FF99"}>{props.meal.v[0]}</MealBox>
+        <MealBox color={"#99FF99"}>{props.meal.v[1]}</MealBox>
+      </div>
+    </div>
+  );
+};
+
+export const KondateTable = (props: { kondate: Kondate }) => {
+  return (
+    <div style={{ display: "flex" }}>
+      {props.kondate.map((day, i) => (
+        <>
+          <div style={{ marginRight: "3px" }}>
+            <div style={{ textAlign: "center" }}>{weekdays[i]}</div>
+            {day.meals.map((meal, j) =>
+              i === 0 ? (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div> {j === 0 ? "🌅" : "🌞"} </div>
+                  <KondateItem meal={meal} />
+                </div>
+              ) : (
+                <KondateItem meal={meal} />
+              )
+            )}
+            {day.newFood &&
+              (i === 0 ? (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div>新</div>
+                  <MealBox color={"#e0ffff"} style={{ flex: 2 }}>
+                    {day.newFood}
+                  </MealBox>
+                </div>
+              ) : (
+                <MealBox color={"#e0ffff"}>{day.newFood}</MealBox>
+              ))}
+          </div>
+        </>
+      ))}
+    </div>
+  );
+};
