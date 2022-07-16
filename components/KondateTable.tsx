@@ -4,7 +4,7 @@ import { Meal, type Kondate } from "../models/Kondate";
 
 const weekdays = "月火水木金土日";
 
-const MealBoxWrapper = styled.div<{ color: string }>`
+const MealBoxWrapper = styled.div<{ color: string; flex?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,15 +13,16 @@ const MealBoxWrapper = styled.div<{ color: string }>`
   overflow: hidden;
   border: solid 1px white;
   background-color: ${(props) => props.color};
+  flex: ${(props) => (props.flex !== undefined ? props.flex : "1")}
 `;
 
 const MealBox = (props: {
   color: string;
   children: React.ReactElement | string;
-  style?: StyleHTMLAttributes<HTMLDivElement>;
+  flex?: string;
 }) => {
   return (
-    <MealBoxWrapper color={props.color} style={props.style}>
+    <MealBoxWrapper color={props.color} flex={props.flex}>
       <span>{props.children}</span>
     </MealBoxWrapper>
   );
@@ -63,7 +64,7 @@ export const KondateTable = (props: { kondate: Kondate }) => {
               (i === 0 ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <div>新</div>
-                  <MealBox color={"#e0ffff"} style={{ flex: 2 }}>
+                  <MealBox color={"#e0ffff"} flex="1">
                     {day.newFood}
                   </MealBox>
                 </div>

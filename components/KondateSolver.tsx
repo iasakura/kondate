@@ -101,6 +101,7 @@ export const KondateSolver: NextPage = () => {
           <div>
             {Object.entries(totalOfFoods).map(([k, v]) => {
               return (
+                // eslint-disable-next-line react/jsx-key
                 <div>
                   {k}: {v}回
                 </div>
