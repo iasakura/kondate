@@ -79,7 +79,7 @@ class FoodsQueue {
   }[];
 
   resetQueue = (kind: FoodKind) => {
-    this.queues[kind] = shuffle(this.usedQueues[kind]);
+    this.queues[kind] = this.usedQueues[kind];
     this.usedQueues[kind] = [];
   };
 
@@ -92,15 +92,15 @@ class FoodsQueue {
     newProtein: string[]
   ) {
     this.queues = {
-      ["carbo"]: shuffle(carbo),
-      ["vitamin"]: shuffle(vitamin),
-      ["protein"]: shuffle(protein),
+      ["carbo"]: carbo,
+      ["vitamin"]: vitamin,
+      ["protein"]: protein,
     };
-    this.newFoodsQueue = shuffle([
+    this.newFoodsQueue = [
       ...newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
       ...newVitamin.map((v) => ({ kind: "vitamin" as const, food: v })),
       ...newProtein.map((p) => ({ kind: "protein" as const, food: p })),
-    ]);
+    ];
     this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
 
@@ -165,7 +165,6 @@ export const computeKondate = (
 export const computeTotal = (kondate: Kondate | undefined) => {
   const totalOfFoods: { [k in string]: number } = {};
   const addToTotal = (s: string) => {
-    console.log(s);
     if (s in totalOfFoods) {
       totalOfFoods[s] += 1;
     } else {

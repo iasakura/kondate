@@ -28,37 +28,78 @@ const useFoods = (props: {
     </div>
   );
 
-  const parsedFoods = foods.split(/[ 　]/);
+  const parsedFoods = foods !== "" ? foods.trim().split(/[ 　]+/) : [];
 
   return [parsedFoods, form];
+};
+
+const useWeekday = (): [React.ReactElement, string[]] => {
+  const weekdays = [
+    "月曜日",
+    "火曜日",
+    "水曜日",
+    "木曜日",
+    "金曜日",
+    "土曜日",
+    "日曜日",
+  ];
+  const doubleWeekdays = [...weekdays, ...weekdays];
+
+  const [startDay, setStartDay] = React.useState(0);
+
+  const handleChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    ev.preventDefault();
+    const selected = weekdays.findIndex((day) => day === ev.target.value);
+    console.log(ev.target.value);
+    console.log(selected);
+    if (selected >= 0) {
+      setStartDay(selected);
+    }
+  };
+
+  const selector = (
+    <label>
+      始まり曜日:
+      <select onChange={handleChange}>
+        {weekdays.map((day, idx) => (
+          <option key={day}>{day}</option>
+        ))}
+      </select>
+    </label>
+  );
+
+  return [selector, doubleWeekdays.slice(startDay, startDay + 7)];
 };
 
 export const KondateSolver: NextPage = () => {
   const [carbo, carboForm] = useFoods({
     category: "炭水化物",
-    default: "そうめん",
+    default: "そうめん オートミール",
   });
   const [protein, proteinForm] = useFoods({
     category: "タンパク質",
-    default: "豆腐 鯛 ヒラメ",
+    default: "豆腐 鯛 しらす",
   });
   const [vitamin, vitaminForm] = useFoods({
     category: "ビタミン",
-    default: "にんじん かぶ キャベツ ほうれん草 かぼちゃ",
+    default: "トマト かぶ キャベツ ほうれん草 にんじん りんご",
   });
 
   const [newCarbo, newCarboForm] = useFoods({
     category: "炭水化物",
-    default: "オートミール",
+    default: "",
   });
   const [newProtein, newProteinForm] = useFoods({
     category: "タンパク質",
-    default: "おにく おさかな",
+    default: "",
   });
   const [newVitamin, newVitaminForm] = useFoods({
     category: "ビタミン",
-    default: "きゅうり なす ぴーまん",
+    default: "",
   });
+
+  const [weekdayForm, weekdays] = useWeekday();
+  console.log(weekdays);
 
   const [kondate, setKondate] = React.useState<Kondate | undefined>(undefined);
 
@@ -93,8 +134,11 @@ export const KondateSolver: NextPage = () => {
           {newProteinForm}
         </div>
       </div>
+      <div>{weekdayForm}</div>
       <button onClick={showKondate}>考える!</button>
-      <div>{kondate && <KondateTable kondate={kondate} />}</div>
+      <div>
+        {kondate && <KondateTable kondate={kondate} weekdays={weekdays} />}
+      </div>
       {totalOfFoods && (
         <div>
           <h3>合計料</h3>

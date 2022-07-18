@@ -2,13 +2,11 @@ import { StyleHTMLAttributes } from "react";
 import styled from "styled-components";
 import { Meal, type Kondate } from "../models/Kondate";
 
-const weekdays = "月火水木金土日";
-
 const MealBoxWrapper = styled.div<{ color: string; flex?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 6rem;
+  min-width: 7rem;
   text-align: center
   overflow: hidden;
   border: solid 1px white;
@@ -43,13 +41,16 @@ const KondateItem = (props: { meal: Meal }) => {
   );
 };
 
-export const KondateTable = (props: { kondate: Kondate }) => {
+export const KondateTable = (props: {
+  kondate: Kondate;
+  weekdays: string[];
+}) => {
   return (
     <div style={{ display: "flex" }}>
       {props.kondate.map((day, i) => (
         <>
           <div style={{ marginRight: "3px" }}>
-            <div style={{ textAlign: "center" }}>{weekdays[i]}</div>
+            <div style={{ textAlign: "center" }}>{props.weekdays[i]}</div>
             {day.meals.map((meal, j) =>
               i === 0 ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
