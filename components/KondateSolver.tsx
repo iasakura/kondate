@@ -3,12 +3,13 @@ import React from "react";
 import { KondateTable } from "./KondateTable";
 import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
 import { add, format } from "date-fns";
-import { useLocalStorage } from ".";
+import { useLocalStorage } from "../hooks";
 
 const useFoods = (props: {
   category: string;
   default: string;
   key: string;
+  withNumber?: boolean;
 }): [string[], React.ReactElement] => {
   const [foods, setFoods] = useLocalStorage(props.key, props.default);
   const handleChange = (ev: React.KeyboardEvent<HTMLInputElement>) => {
@@ -31,7 +32,19 @@ const useFoods = (props: {
     </div>
   );
 
-  const parsedFoods = foods !== "" ? foods.trim().split(/[ 　]+/) : [];
+  let parsedFoods = foods !== "" ? foods.trim().split(/[ 　]+/) : [];
+  if (props.withNumber) {
+    parsedFoods = parsedFoods.flatMap((food) => {
+      const foodWithNum = food.split("x");
+      if (foodWithNum.length == 2) {
+        const num = parseInt(foodWithNum[1]);
+        if (Number.isInteger(num)) {
+          return new Array(parseInt(foodWithNum[1])).fill(foodWithNum[0]);
+        }
+      }
+      return [food];
+    });
+  }
 
   return [parsedFoods, form];
 };
@@ -95,7 +108,26 @@ export const KondateSolver: NextPage = () => {
   const [newVitamin, newVitaminForm] = useFoods({
     category: "ビタミン",
     default: "",
-    key: "vitamin-new",
+    key: "vitamin-stock",
+  });
+
+  const [stockCarbo, stockCarboForm] = useFoods({
+    category: "炭水化物",
+    default: "",
+    key: "carbo-stock",
+    withNumber: true,
+  });
+  const [stockProtein, stockProteinForm] = useFoods({
+    category: "タンパク質",
+    default: "",
+    key: "protein-stock",
+    withNumber: true,
+  });
+  const [stockVitamin, stockVitaminForm] = useFoods({
+    category: "ビタミン",
+    default: "",
+    key: "vitamin-stock",
+    withNumber: true,
   });
 
   const [weekdayForm, weekdays] = useStartDay();
@@ -109,7 +141,10 @@ export const KondateSolver: NextPage = () => {
       protein,
       newCarbo,
       newVitamin,
-      newProtein
+      newProtein,
+      stockCarbo,
+      stockVitamin,
+      stockProtein
     );
     setKondate(kondate);
   };
@@ -118,10 +153,11 @@ export const KondateSolver: NextPage = () => {
 
   return (
     <>
+      <h2>食材</h2>
       <div>食材をスペース区切りで入力してください:</div>
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "box" }}>
+        <div>これまで食べたことがあるもの</div>
         <div style={{ marginRight: "10px" }}>
-          これまで食べたことがあるもの:
           {carboForm}
           {vitaminForm}
           {proteinForm}
@@ -131,6 +167,12 @@ export const KondateSolver: NextPage = () => {
           {newCarboForm}
           {newVitaminForm}
           {newProteinForm}
+        </div>
+        <div>
+          ストック:
+          {stockCarboForm}
+          {stockVitaminForm}
+          {stockProteinForm}
         </div>
       </div>
       <div>{weekdayForm}</div>

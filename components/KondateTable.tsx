@@ -1,6 +1,6 @@
 import { StyleHTMLAttributes } from "react";
 import styled from "styled-components";
-import { Meal, type Kondate } from "../models/Kondate";
+import { Food, Meal, type Kondate } from "../models/Kondate";
 
 const MealBoxWrapper = styled.div<{ color: string; flex?: string }>`
   display: flex;
@@ -26,16 +26,19 @@ const MealBox = (props: {
   );
 };
 
+const foodToString = (food: Food): string =>
+  food.food + (food.isStock ? " (ス)" : "");
+
 const KondateItem = (props: { meal: Meal }) => {
   return (
     <div style={{ display: "block", marginBottom: "3px" }}>
       <div style={{ display: "flex" }}>
-        <MealBox color={"#FFFFCC"}>{props.meal.c}</MealBox>
-        <MealBox color={"#FFEEFF"}>{props.meal.p}</MealBox>
+        <MealBox color={"#FFFFCC"}>{foodToString(props.meal.c)}</MealBox>
+        <MealBox color={"#FFEEFF"}>{foodToString(props.meal.p)}</MealBox>
       </div>
       <div style={{ display: "flex" }}>
-        <MealBox color={"#99FF99"}>{props.meal.v[0]}</MealBox>
-        <MealBox color={"#99FF99"}>{props.meal.v[1]}</MealBox>
+        <MealBox color={"#99FF99"}>{foodToString(props.meal.v[0])}</MealBox>
+        <MealBox color={"#99FF99"}>{foodToString(props.meal.v[1])}</MealBox>
       </div>
     </div>
   );

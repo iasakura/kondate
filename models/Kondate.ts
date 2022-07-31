@@ -1,4 +1,5 @@
-export type Meal = { p: string; c: string; v: string[] };
+export type Food = { food: string; isStock: boolean };
+export type Meal = { p: Food; c: Food; v: Food[] };
 export type Kondate = {
   meals: Meal[];
   newFood?: string;
@@ -71,8 +72,8 @@ export const computeVitamin = (
 type FoodKind = "carbo" | "vitamin" | "protein";
 
 class FoodsQueue {
-  private queues: { [k in FoodKind]: string[] };
-  private usedQueues: { [k in FoodKind]: string[] };
+  private queues: { [k in FoodKind]: Food[] };
+  private usedQueues: { [k in FoodKind]: Food[] };
   private newFoodsQueue: {
     kind: FoodKind;
     food: string;
@@ -89,12 +90,24 @@ class FoodsQueue {
     protein: string[],
     newCarbo: string[],
     newVitamin: string[],
-    newProtein: string[]
+    newProtein: string[],
+    stockCarbo: string[],
+    stockVitamin: string[],
+    stockProtein: string[]
   ) {
     this.queues = {
-      ["carbo"]: carbo,
-      ["vitamin"]: vitamin,
-      ["protein"]: protein,
+      ["carbo"]: [
+        ...stockCarbo.map((food) => ({ food, isStock: true })),
+        ...carbo.map((food) => ({ food, isStock: false })),
+      ],
+      ["vitamin"]: [
+        ...stockVitamin.map((food) => ({ food, isStock: true })),
+        ...vitamin.map((food) => ({ food, isStock: false })),
+      ],
+      ["protein"]: [
+        ...stockProtein.map((food) => ({ food, isStock: true })),
+        ...protein.map((food) => ({ food, isStock: false })),
+      ],
     };
     this.newFoodsQueue = [
       ...newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
@@ -104,13 +117,15 @@ class FoodsQueue {
     this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
 
-  get = (kind: FoodKind) => {
+  get = (kind: FoodKind): Food => {
     if (this.queues[kind].length === 0) {
       this.resetQueue(kind);
     }
     const ret = this.queues[kind][0];
     this.queues[kind] = this.queues[kind].slice(1);
-    this.usedQueues[kind].push(ret);
+    if (!ret.isStock) {
+      this.usedQueues[kind].push(ret);
+    }
     return ret;
   };
 
@@ -120,7 +135,7 @@ class FoodsQueue {
     }
     const res = this.newFoodsQueue[0];
     this.newFoodsQueue = this.newFoodsQueue.slice(1);
-    this.usedQueues[res.kind].push(res.food);
+    this.usedQueues[res.kind].push({ food: res.food, isStock: false });
     return res.food;
   };
 }
@@ -131,7 +146,10 @@ export const computeKondate = (
   protein: string[],
   newCarbo: string[],
   newVitamin: string[],
-  newProtein: string[]
+  newProtein: string[],
+  stockCarbo: string[],
+  stockVitamin: string[],
+  stockProtein: string[]
 ): Kondate => {
   const queue = new FoodsQueue(
     carbo,
@@ -139,7 +157,10 @@ export const computeKondate = (
     protein,
     newCarbo,
     newVitamin,
-    newProtein
+    newProtein,
+    stockCarbo,
+    stockVitamin,
+    stockProtein
   );
 
   const res: Kondate = [];
@@ -147,7 +168,8 @@ export const computeKondate = (
   for (let day = 0; day < N; ++day) {
     const d: Meal[] = [];
     for (let meal = 0; meal < PER_DAY; ++meal) {
-      const c = meal === 0 ? "米" : queue.get("carbo");
+      const c =
+        meal === 0 ? { food: "米", isStock: false } : queue.get("carbo");
       const p = queue.get("protein");
       const vs = [];
       for (let i = 0; i < N_VITAMIN; ++i) {
@@ -164,11 +186,11 @@ export const computeKondate = (
 
 export const computeTotal = (kondate: Kondate | undefined) => {
   const totalOfFoods: { [k in string]: number } = {};
-  const addToTotal = (s: string) => {
-    if (s in totalOfFoods) {
-      totalOfFoods[s] += 1;
+  const addToTotal = (s: Food) => {
+    if (s.food in totalOfFoods) {
+      totalOfFoods[s.food] += 1;
     } else {
-      totalOfFoods[s] = 1;
+      totalOfFoods[s.food] = 1;
     }
   };
 
@@ -179,7 +201,7 @@ export const computeTotal = (kondate: Kondate | undefined) => {
       meal.v.forEach((v) => addToTotal(v));
     });
     if (day.newFood !== undefined) {
-      addToTotal(day.newFood);
+      addToTotal({ food: day.newFood, isStock: false });
     }
   });
 
