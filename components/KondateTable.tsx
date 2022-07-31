@@ -1,4 +1,3 @@
-import { StyleHTMLAttributes } from "react";
 import styled from "styled-components";
 import { Food, Meal, type Kondate } from "../models/Kondate";
 

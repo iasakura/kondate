@@ -32,6 +32,7 @@ const useFoods = (props: {
     </div>
   );
 
+  // eslint-disable-next-line no-irregular-whitespace
   let parsedFoods = foods !== "" ? foods.trim().split(/[ 　]+/) : [];
   if (props.withNumber) {
     parsedFoods = parsedFoods.flatMap((food) => {
