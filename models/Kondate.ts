@@ -110,9 +110,9 @@ class FoodsQueue {
       ],
     };
     this.newFoodsQueue = [
+      ...newProtein.map((p) => ({ kind: "protein" as const, food: p })),
       ...newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
       ...newVitamin.map((v) => ({ kind: "vitamin" as const, food: v })),
-      ...newProtein.map((p) => ({ kind: "protein" as const, food: p })),
     ];
     this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
