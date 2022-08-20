@@ -80,7 +80,7 @@ class FoodsQueue {
   }[];
 
   resetQueue = (kind: FoodKind) => {
-    this.queues[kind] = this.usedQueues[kind];
+    this.queues[kind].push(...this.usedQueues[kind]);
     this.usedQueues[kind] = [];
   };
 
@@ -117,16 +117,28 @@ class FoodsQueue {
     this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
 
-  get = (kind: FoodKind): Food => {
-    if (this.queues[kind].length === 0) {
+  get = (kind: FoodKind, used: Food[]): Food => {
+    for (let trial = 0; trial < 2; ++trial) {
+      console.log(this.queues[kind], kind);
+      for (let i = 0; i < this.queues[kind].length; ++i) {
+        if (i !== 0) {
+          console.debug(`trying ${i + 1} times for getting food ${kind}`);
+        }
+        const cand = this.queues[kind][i];
+        if (used.find((f) => f.food === cand.food) == null) {
+          this.queues[kind] = [
+            ...this.queues[kind].slice(0, i),
+            ...this.queues[kind].slice(i + 1),
+          ];
+          if (!cand.isStock) {
+            this.usedQueues[kind].push(cand);
+          }
+          return cand;
+        }
+      }
       this.resetQueue(kind);
     }
-    const ret = this.queues[kind][0];
-    this.queues[kind] = this.queues[kind].slice(1);
-    if (!ret.isStock) {
-      this.usedQueues[kind].push(ret);
-    }
-    return ret;
+    throw Error("No food found");
   };
 
   getNew = () => {
@@ -165,18 +177,36 @@ export const computeKondate = (
 
   const res: Kondate = [];
 
+  let used1: Food[] = [];
+  let used2: Food[] = [];
+
   for (let day = 0; day < N; ++day) {
     const d: Meal[] = [];
+
     for (let meal = 0; meal < PER_DAY; ++meal) {
       const c =
-        meal === 0 ? { food: "米", isStock: false } : queue.get("carbo");
-      const p = queue.get("protein");
-      const vs = [];
+        meal === 0
+          ? { food: "米", isStock: false }
+          : queue.get("carbo", used1.concat(used2));
+      if (c.isStock) {
+        used1.push(c);
+      }
+      const p = queue.get("protein", used1.concat(used2));
+      if (p.isStock) {
+        used1.push(p);
+      }
+      const vs: Food[] = [];
       for (let i = 0; i < N_VITAMIN; ++i) {
-        vs.push(queue.get("vitamin"));
+        const v = queue.get("vitamin", used1.concat(used2));
+        if (v.isStock) {
+          used1.push(v);
+        }
+        vs.push(v);
       }
       d.push({ c, p, v: vs });
     }
+    used2 = used1;
+    used1 = [];
     const newFood = NEW_FOOD_DAY.includes(day) ? queue.getNew() : undefined;
     res.push({ meals: d, newFood });
   }
