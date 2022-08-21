@@ -1,9 +1,13 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { KondateSolver } from "../components/KondateSolver";
+import { DefaultFoods } from "../hooks/useFoods";
 
-const Home: NextPage = () => {
+type Props = { defaultFoods?: DefaultFoods };
+
+const Home: NextPage = (props: Props) => {
+  console.log(props);
   return (
     <div className={styles.container}>
       <Head>
@@ -12,9 +16,29 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1>離乳食こんだて考える君</h1>
-      <KondateSolver />
+      <KondateSolver defaultFoods={props.defaultFoods} />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context
+) => {
+  let foods = context.query.foods;
+  if (foods == null) {
+    return { props: {} };
+  }
+  if (typeof foods !== "string") {
+    // Only use last element
+    foods = foods[foods.length - 1];
+  }
+  const defaultFoods = DefaultFoods.safeParse(JSON.parse(foods));
+  console.log(foods);
+  if (defaultFoods.success) {
+    return { props: { defaultFoods: defaultFoods.data } };
+  } else {
+    throw Error("Invalid URL");
+  }
 };
 
 export default Home;

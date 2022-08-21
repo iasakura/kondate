@@ -1,3 +1,5 @@
+import { Foods } from "../hooks/useFoods";
+
 export type Food = { food: string; isStock: boolean };
 export type Meal = { p: Food; c: Food; v: Food[] };
 export type Kondate = {
@@ -84,35 +86,25 @@ class FoodsQueue {
     this.usedQueues[kind] = [];
   };
 
-  constructor(
-    carbo: string[],
-    vitamin: string[],
-    protein: string[],
-    newCarbo: string[],
-    newVitamin: string[],
-    newProtein: string[],
-    stockCarbo: string[],
-    stockVitamin: string[],
-    stockProtein: string[]
-  ) {
+  constructor(foods: Foods) {
     this.queues = {
       ["carbo"]: [
-        ...stockCarbo.map((food) => ({ food, isStock: true })),
-        ...carbo.map((food) => ({ food, isStock: false })),
+        ...foods.stockCarbo.map((food) => ({ food, isStock: true })),
+        ...foods.carbo.map((food) => ({ food, isStock: false })),
       ],
       ["vitamin"]: [
-        ...stockVitamin.map((food) => ({ food, isStock: true })),
-        ...vitamin.map((food) => ({ food, isStock: false })),
+        ...foods.stockVitamin.map((food) => ({ food, isStock: true })),
+        ...foods.vitamin.map((food) => ({ food, isStock: false })),
       ],
       ["protein"]: [
-        ...stockProtein.map((food) => ({ food, isStock: true })),
-        ...protein.map((food) => ({ food, isStock: false })),
+        ...foods.stockProtein.map((food) => ({ food, isStock: true })),
+        ...foods.protein.map((food) => ({ food, isStock: false })),
       ],
     };
     this.newFoodsQueue = [
-      ...newProtein.map((p) => ({ kind: "protein" as const, food: p })),
-      ...newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
-      ...newVitamin.map((v) => ({ kind: "vitamin" as const, food: v })),
+      ...foods.newProtein.map((p) => ({ kind: "protein" as const, food: p })),
+      ...foods.newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
+      ...foods.newVitamin.map((v) => ({ kind: "vitamin" as const, food: v })),
     ];
     this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
@@ -152,28 +144,8 @@ class FoodsQueue {
   };
 }
 
-export const computeKondate = (
-  carbo: string[],
-  vitamin: string[],
-  protein: string[],
-  newCarbo: string[],
-  newVitamin: string[],
-  newProtein: string[],
-  stockCarbo: string[],
-  stockVitamin: string[],
-  stockProtein: string[]
-): Kondate => {
-  const queue = new FoodsQueue(
-    carbo,
-    vitamin,
-    protein,
-    newCarbo,
-    newVitamin,
-    newProtein,
-    stockCarbo,
-    stockVitamin,
-    stockProtein
-  );
+export const computeKondate = (foods: Foods): Kondate => {
+  const queue = new FoodsQueue(foods);
 
   const res: Kondate = [];
 
