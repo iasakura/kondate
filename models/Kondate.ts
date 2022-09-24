@@ -1,3 +1,5 @@
+import add from "date-fns/add";
+import getDay from "date-fns/getDay";
 import { Foods } from "../hooks/useFoods";
 
 export type Food = { food: string; isStock: boolean };
@@ -10,7 +12,7 @@ export type Kondate = {
 export const N = 7;
 export const PER_DAY = 2;
 export const N_VITAMIN = 2;
-const NEW_FOOD_DAY = [0, 1, 2, 4, 5];
+const NEW_FOOD_DAY = [1, 2, 3, 5, 6];
 
 const shuffle = <T>(array: T[]) => {
   const shuffled = [...array];
@@ -144,7 +146,7 @@ class FoodsQueue {
   };
 }
 
-export const computeKondate = (foods: Foods, startDay: number): Kondate => {
+export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
   const queue = new FoodsQueue(foods);
 
   const res: Kondate = [];
@@ -153,7 +155,9 @@ export const computeKondate = (foods: Foods, startDay: number): Kondate => {
   let used2: Food[] = [];
 
   for (let day = 0; day < N; ++day) {
-    const d: Meal[] = [];
+
+    const date = add(startDay, { days: day });
+    const weekDay = getDay(date);
 
     for (let meal = 0; meal < PER_DAY; ++meal) {
       const c =
