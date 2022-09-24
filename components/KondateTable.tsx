@@ -43,6 +43,8 @@ const KondateItem = (props: { meal: Meal }) => {
   );
 };
 
+const timeEmoji = ["🌅", "🌞", "🌇"];
+
 export const KondateTable = (props: {
   kondate: Kondate;
   weekdays: string[];
@@ -56,7 +58,7 @@ export const KondateTable = (props: {
             {day.meals.map((meal, j) =>
               i === 0 ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  <div> {j === 0 ? "🌅" : "🌞"} </div>
+                  <div> {timeEmoji[j]} </div>
                   <KondateItem meal={meal} />
                 </div>
               ) : (
