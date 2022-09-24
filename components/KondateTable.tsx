@@ -56,13 +56,17 @@ export const KondateTable = (props: {
           <div style={{ marginRight: "3px" }}>
             <div style={{ textAlign: "center" }}>{props.weekdays[i]}</div>
             {day.meals.map((meal, j) =>
-              i === 0 ? (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div> {timeEmoji[j]} </div>
+              meal != null ? (
+                i === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div> {timeEmoji[j]} </div>
+                    <KondateItem meal={meal} />
+                  </div>
+                ) : (
                   <KondateItem meal={meal} />
-                </div>
+                )
               ) : (
-                <KondateItem meal={meal} />
+                <div />
               )
             )}
             {day.newFood &&

@@ -4,7 +4,7 @@ import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
 import { saveAs } from "file-saver";
 
 import { DefaultFoods, Foods, useFoodsForm } from "../hooks/useFoods";
-import { useStartDay } from "../hooks/date";
+import { useDays } from "../hooks/date";
 import { useDrop } from "../hooks/fileDrop";
 import { useShareURLButton } from "../hooks/useShareURL";
 
@@ -18,7 +18,7 @@ const download = (foods: Foods) => {
 };
 
 export const KondateSolver = (props: { defaultFoods?: DefaultFoods }) => {
-  const [weekdayForm, weekdays] = useStartDay();
+  const { form: weekdayForm, days: weekdays, startDay } = useDays();
 
   const [kondate, setKondate] = React.useState<Kondate | undefined>(undefined);
   const defaultFoods = props.defaultFoods ?? {
@@ -36,7 +36,7 @@ export const KondateSolver = (props: { defaultFoods?: DefaultFoods }) => {
   const { form: foodsForm, setFoods, foods } = useFoodsForm({ defaultFoods });
 
   const showKondate = () => {
-    const kondate = computeKondate(foods);
+    const kondate = computeKondate(foods, startDay);
     setKondate(kondate);
   };
 

@@ -1,10 +1,15 @@
 import add from "date-fns/add";
 import format from "date-fns/format";
+import getDay from "date-fns/getDay";
 import React from "react";
 
 const formatDate = (d: Date) => format(d, "MM/dd (eee)");
 
-export const useStartDay = (): [React.ReactElement, string[]] => {
+export const useDays = (): {
+  form: React.ReactElement;
+  days: string[];
+  startDay: number;
+} => {
   const [startDay, setStartDay] = React.useState(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -28,5 +33,5 @@ export const useStartDay = (): [React.ReactElement, string[]] => {
     </label>
   );
 
-  return [selector, days];
+  return { form: selector, days, startDay: getDay(new Date(startDay)) };
 };

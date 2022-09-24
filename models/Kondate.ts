@@ -144,7 +144,7 @@ class FoodsQueue {
   };
 }
 
-export const computeKondate = (foods: Foods): Kondate => {
+export const computeKondate = (foods: Foods, startDay: number): Kondate => {
   const queue = new FoodsQueue(foods);
 
   const res: Kondate = [];
@@ -179,7 +179,8 @@ export const computeKondate = (foods: Foods): Kondate => {
     }
     used2 = used1;
     used1 = [];
-    const newFood = NEW_FOOD_DAY.includes(day) ? queue.getNew() : undefined;
+    const weekDay = (startDay + day) % 7;
+    const newFood = NEW_FOOD_DAY.includes(weekDay) ? queue.getNew() : undefined;
     res.push({ meals: d, newFood });
   }
 
