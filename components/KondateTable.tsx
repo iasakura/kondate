@@ -66,7 +66,7 @@ export const KondateTable = (props: {
                   <KondateItem meal={meal} />
                 )
               ) : (
-                <div />
+                <div>ごはんなし</div>
               )
             )}
             {day.newFood &&

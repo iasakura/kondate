@@ -1,14 +1,17 @@
+import { isHoliday } from "@holiday-jp/holiday_jp";
+import add from "date-fns/add";
+import getDay from "date-fns/getDay";
 import { Foods } from "../hooks/useFoods";
 
 export type Food = { food: string; isStock: boolean };
 export type Meal = { p: Food; c: Food; v: Food[] };
 export type Kondate = {
-  meals: Meal[];
+  meals: (Meal | undefined)[];
   newFood?: string;
 }[];
 
 export const N = 7;
-export const PER_DAY = 2;
+export const PER_DAY = 3;
 export const N_VITAMIN = 2;
 const NEW_FOOD_DAY = [0, 1, 2, 4, 5];
 
@@ -153,9 +156,17 @@ export const computeKondate = (foods: Foods, startDay: number): Kondate => {
   let used2: Food[] = [];
 
   for (let day = 0; day < N; ++day) {
-    const d: Meal[] = [];
+    const d: (Meal | undefined)[] = [];
+
+    const date = add(startDay, { days: day });
+    const weekDay = getDay(date);
 
     for (let meal = 0; meal < PER_DAY; ++meal) {
+      // 平日はお昼なし
+      if (meal === 1 && ((1 <= weekDay && weekDay <= 5) || isHoliday(date))) {
+        d.push(undefined);
+        continue;
+      }
       const c =
         meal === 0
           ? { food: "米", isStock: false }
@@ -179,7 +190,6 @@ export const computeKondate = (foods: Foods, startDay: number): Kondate => {
     }
     used2 = used1;
     used1 = [];
-    const weekDay = (startDay + day) % 7;
     const newFood = NEW_FOOD_DAY.includes(weekDay) ? queue.getNew() : undefined;
     res.push({ meals: d, newFood });
   }
@@ -199,9 +209,11 @@ export const computeTotal = (kondate: Kondate | undefined) => {
 
   kondate?.forEach((day) => {
     day.meals.forEach((meal) => {
-      addToTotal(meal.c);
-      addToTotal(meal.p);
-      meal.v.forEach((v) => addToTotal(v));
+      if (meal != null) {
+        addToTotal(meal.c);
+        addToTotal(meal.p);
+        meal.v.forEach((v) => addToTotal(v));
+      }
     });
     if (day.newFood !== undefined) {
       addToTotal({ food: day.newFood, isStock: false });
