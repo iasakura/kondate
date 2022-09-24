@@ -155,9 +155,10 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
   let used2: Food[] = [];
 
   for (let day = 0; day < N; ++day) {
-
     const date = add(startDay, { days: day });
     const weekDay = getDay(date);
+
+    const d: Meal[] = [];
 
     for (let meal = 0; meal < PER_DAY; ++meal) {
       const c =
@@ -183,7 +184,6 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
     }
     used2 = used1;
     used1 = [];
-    const weekDay = (startDay + day) % 7;
     const newFood = NEW_FOOD_DAY.includes(weekDay) ? queue.getNew() : undefined;
     res.push({ meals: d, newFood });
   }
