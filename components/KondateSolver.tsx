@@ -3,8 +3,7 @@ import { KondateTable } from "./KondateTable";
 import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
 import { saveAs } from "file-saver";
 
-import { DefaultFoods, Foods, useFoodsForm } from "../hooks/useFoods";
-import { useDays } from "../hooks/date";
+import { Foods, useFoodsForm } from "../hooks/useFoods";
 import { useDrop } from "../hooks/fileDrop";
 import { useShareURLButton } from "../hooks/useShareURL";
 
@@ -17,26 +16,13 @@ const download = (foods: Foods) => {
   );
 };
 
-export const KondateSolver = (props: { defaultFoods?: DefaultFoods }) => {
-  const { form: weekdayForm, days: weekdays, startDay } = useDays();
-
+export const KondateSolver = (props: { defaultFoods?: Foods }) => {
   const [kondate, setKondate] = React.useState<Kondate | undefined>(undefined);
-  const defaultFoods = props.defaultFoods ?? {
-    carbo: undefined,
-    vitamin: undefined,
-    protein: undefined,
-    newCarbo: undefined,
-    newVitamin: undefined,
-    newProtein: undefined,
-    stockCarbo: undefined,
-    stockVitamin: undefined,
-    stockProtein: undefined,
-  };
-
+  const defaultFoods = props.defaultFoods;
   const { form: foodsForm, setFoods, foods } = useFoodsForm({ defaultFoods });
 
   const showKondate = () => {
-    const kondate = computeKondate(foods, startDay);
+    const kondate = computeKondate(foods, foods.startDay);
     setKondate(kondate);
   };
 
@@ -78,14 +64,15 @@ export const KondateSolver = (props: { defaultFoods?: DefaultFoods }) => {
       onDragLeave={handleDragLeave}
       style={{ backgroundColor: isDraggedOver ? "#e1e7f0" : "#ffffff" }}
     >
-      <div>{weekdayForm}</div>
       {foodsForm}
       <button onClick={showKondate}>考える!</button>
       <button onClick={() => download(foods)}>ダウンロード</button>
       {shareURLButton}
       <input type="file" onChange={(ev) => handleFileChange(ev)} />
       <div>
-        {kondate && <KondateTable kondate={kondate} weekdays={weekdays} />}
+        {kondate && (
+          <KondateTable kondate={kondate} startDay={foods.startDay} />
+        )}
       </div>
       {totalOfFoods && (
         <div>
