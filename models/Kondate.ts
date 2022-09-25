@@ -1,12 +1,13 @@
 import add from "date-fns/add";
 import getDay from "date-fns/getDay";
 import { Foods } from "../hooks/useFoods";
+import { Kind, KindWithOther } from "./foods";
 
 export type Food = { food: string; isStock: boolean };
 export type Meal = { p: Food; c: Food; v: Food[] };
 export type Kondate = {
   meals: Meal[];
-  newFood?: string;
+  newFood?: { name: string; kind: KindWithOther };
   date: Date;
 }[];
 
@@ -74,24 +75,22 @@ export const computeVitamin = (
   return res.slice(0, n);
 };
 
-type FoodKind = "carbo" | "vitamin" | "protein";
-
 class FoodsQueue {
-  private queues: { [k in FoodKind]: Food[] };
-  private usedQueues: { [k in FoodKind]: Food[] };
+  private queues: { [k in Kind]: Food[] };
+  private usedQueues: { [k in Kind]: Food[] };
   private newFoodsQueue: {
-    kind: FoodKind | "others";
+    kind: KindWithOther;
     food: string;
   }[];
 
-  resetQueue = (kind: FoodKind) => {
+  resetQueue = (kind: Kind) => {
     this.queues[kind].push(...this.usedQueues[kind]);
     this.usedQueues[kind] = [];
   };
 
   constructor(foods: Foods) {
     this.queues = {
-      ["carbo"]: [
+      ["carbon"]: [
         ...foods.stockCarbo.map((food) => ({ food, isStock: true })),
         ...foods.carbo.map((food) => ({ food, isStock: false })),
       ],
@@ -106,14 +105,14 @@ class FoodsQueue {
     };
     this.newFoodsQueue = [
       ...foods.newProtein.map((p) => ({ kind: "protein" as const, food: p })),
-      ...foods.newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
+      ...foods.newCarbo.map((c) => ({ kind: "carbon" as const, food: c })),
       ...foods.newVitamin.map((v) => ({ kind: "vitamin" as const, food: v })),
-      ...foods.newOthers.map((v) => ({ kind: "others" as const, food: v })),
+      ...foods.newOthers.map((v) => ({ kind: "other" as const, food: v })),
     ];
-    this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
+    this.usedQueues = { ["carbon"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
 
-  get = (kind: FoodKind, used: Food[]): Food => {
+  get = (kind: Kind, used: Food[]): Food => {
     for (let trial = 0; trial < 2; ++trial) {
       console.log(this.queues[kind], kind);
       for (let i = 0; i < this.queues[kind].length; ++i) {
@@ -143,10 +142,10 @@ class FoodsQueue {
     }
     const res = this.newFoodsQueue[0];
     this.newFoodsQueue = this.newFoodsQueue.slice(1);
-    if (res.kind !== "others") {
+    if (res.kind !== "other") {
       this.usedQueues[res.kind].push({ food: res.food, isStock: false });
     }
-    return res.food;
+    return { name: res.food, kind: res.kind };
   };
 }
 
@@ -168,7 +167,7 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
       const c =
         meal === 0
           ? { food: "米", isStock: false }
-          : queue.get("carbo", used1.concat(used2));
+          : queue.get("carbon", used1.concat(used2));
       if (c.isStock) {
         used1.push(c);
       }
@@ -195,26 +194,36 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
   return res;
 };
 
-export const computeTotal = (kondate: Kondate | undefined) => {
-  const totalOfFoods: { [k in string]: number } = {};
-  const addToTotal = (s: Food) => {
+export type TotalResult = {
+  name: string;
+  total: number;
+  kind: KindWithOther;
+}[];
+
+export const computeTotal = (kondate: Kondate | undefined): TotalResult => {
+  const totalOfFoods: {
+    [k in string]: { total: number; kind: KindWithOther };
+  } = {};
+  const addToTotal = (s: Food, kind: KindWithOther) => {
     if (s.food in totalOfFoods) {
-      totalOfFoods[s.food] += 1;
+      totalOfFoods[s.food].total += 1;
     } else {
-      totalOfFoods[s.food] = 1;
+      totalOfFoods[s.food] = { total: 1, kind };
     }
   };
 
   kondate?.forEach((day) => {
     day.meals.forEach((meal) => {
-      addToTotal(meal.c);
-      addToTotal(meal.p);
-      meal.v.forEach((v) => addToTotal(v));
+      addToTotal(meal.c, "carbon");
+      addToTotal(meal.p, "protein");
+      meal.v.forEach((v) => addToTotal(v, "vitamin"));
     });
     if (day.newFood !== undefined) {
-      addToTotal({ food: day.newFood, isStock: false });
+      addToTotal({ food: day.newFood.name, isStock: false }, day.newFood.kind);
     }
   });
 
-  return totalOfFoods;
+  return Object.entries(totalOfFoods).map(([k, v]) => {
+    return { name: k, ...v };
+  });
 };

@@ -1,11 +1,18 @@
 import React, { useEffect } from "react";
 import { KondateTable } from "./KondateTable";
-import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
+import {
+  computeKondate,
+  computeTotal,
+  TotalResult,
+  type Kondate,
+} from "../models/Kondate";
 import { saveAs } from "file-saver";
 
 import { Foods, useFoodsForm } from "../hooks/useFoods";
 import { useDrop } from "../hooks/fileDrop";
 import { useShareURLButton } from "../hooks/useShareURL";
+import { colors } from "../ui";
+import { japaneseFoodName, KindWithOther } from "../models/foods";
 
 const download = (foods: Foods) => {
   saveAs(
@@ -79,16 +86,30 @@ export const KondateSolver = (props: { defaultFoods?: Foods }) => {
       {totalOfFoods && (
         <div>
           <h3>合計料</h3>
-          <div>
-            {Object.entries(totalOfFoods).map(([k, v]) => {
+          {(["carbon", "protein", "vitamin", "other"] as KindWithOther[]).map(
+            (kind) => {
               return (
-                // eslint-disable-next-line react/jsx-key
-                <div>
-                  {k}: {v}回
+                <div key={kind}>
+                  <h4>{japaneseFoodName[kind]}</h4>
+                  {totalOfFoods
+                    .filter(({ kind: k }) => k === kind)
+                    .map(({ name, total, kind }) => {
+                      return (
+                        <div
+                          style={{
+                            background: colors[kind],
+                            width: "fit-content",
+                          }}
+                          key={name}
+                        >
+                          {name}: {total}回
+                        </div>
+                      );
+                    })}
                 </div>
               );
-            })}
-          </div>
+            }
+          )}
         </div>
       )}
     </div>

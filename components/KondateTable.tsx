@@ -1,6 +1,7 @@
 import format from "date-fns/format";
 import styled from "styled-components";
 import { Food, Meal, type Kondate } from "../models/Kondate";
+import { colors } from "../ui";
 
 const MealBoxWrapper = styled.div<{ color: string; flex?: string }>`
   display: flex;
@@ -33,12 +34,16 @@ const KondateItem = (props: { meal: Meal }) => {
   return (
     <div style={{ display: "block", marginBottom: "3px" }}>
       <div style={{ display: "flex" }}>
-        <MealBox color={"#FFFFCC"}>{foodToString(props.meal.c)}</MealBox>
-        <MealBox color={"#FFEEFF"}>{foodToString(props.meal.p)}</MealBox>
+        <MealBox color={colors.carbon}>{foodToString(props.meal.c)}</MealBox>
+        <MealBox color={colors.protein}>{foodToString(props.meal.p)}</MealBox>
       </div>
       <div style={{ display: "flex" }}>
-        <MealBox color={"#99FF99"}>{foodToString(props.meal.v[0])}</MealBox>
-        <MealBox color={"#99FF99"}>{foodToString(props.meal.v[1])}</MealBox>
+        <MealBox color={colors.vitamin}>
+          {foodToString(props.meal.v[0])}
+        </MealBox>
+        <MealBox color={colors.vitamin}>
+          {foodToString(props.meal.v[1])}
+        </MealBox>
       </div>
     </div>
   );
@@ -72,12 +77,14 @@ export const KondateTable = (props: { kondate: Kondate }) => {
               (i === 0 ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <div>新</div>
-                  <MealBox color={"#e0ffff"} flex="1">
-                    {day.newFood}
+                  <MealBox color={colors[day.newFood.kind]} flex="1">
+                    {day.newFood.name}
                   </MealBox>
                 </div>
               ) : (
-                <MealBox color={"#e0ffff"}>{day.newFood}</MealBox>
+                <MealBox color={colors[day.newFood.kind]}>
+                  {day.newFood.name}
+                </MealBox>
               ))}
           </div>
         </>
