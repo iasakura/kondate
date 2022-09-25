@@ -80,7 +80,7 @@ class FoodsQueue {
   private queues: { [k in FoodKind]: Food[] };
   private usedQueues: { [k in FoodKind]: Food[] };
   private newFoodsQueue: {
-    kind: FoodKind;
+    kind: FoodKind | "others";
     food: string;
   }[];
 
@@ -108,6 +108,7 @@ class FoodsQueue {
       ...foods.newProtein.map((p) => ({ kind: "protein" as const, food: p })),
       ...foods.newCarbo.map((c) => ({ kind: "carbo" as const, food: c })),
       ...foods.newVitamin.map((v) => ({ kind: "vitamin" as const, food: v })),
+      ...foods.newOthers.map((v) => ({ kind: "others" as const, food: v })),
     ];
     this.usedQueues = { ["carbo"]: [], ["vitamin"]: [], ["protein"]: [] };
   }
@@ -142,7 +143,9 @@ class FoodsQueue {
     }
     const res = this.newFoodsQueue[0];
     this.newFoodsQueue = this.newFoodsQueue.slice(1);
-    this.usedQueues[res.kind].push({ food: res.food, isStock: false });
+    if (res.kind !== "others") {
+      this.usedQueues[res.kind].push({ food: res.food, isStock: false });
+    }
     return res.food;
   };
 }

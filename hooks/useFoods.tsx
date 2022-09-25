@@ -10,6 +10,7 @@ export const Foods = z.object({
   newCarbo: z.array(z.string()),
   newVitamin: z.array(z.string()),
   newProtein: z.array(z.string()),
+  newOthers: z.array(z.string()),
   stockCarbo: z.array(z.string()),
   stockVitamin: z.array(z.string()),
   stockProtein: z.array(z.string()),
@@ -17,20 +18,20 @@ export const Foods = z.object({
 
 export type Foods = z.infer<typeof Foods>;
 
-export const FormFoods = z.object({
-  startDay: z.optional(z.string()),
-  carbo: z.optional(z.string()),
-  vitamin: z.optional(z.string()),
-  protein: z.optional(z.string()),
-  newCarbo: z.optional(z.string()),
-  newVitamin: z.optional(z.string()),
-  newProtein: z.optional(z.string()),
-  stockCarbo: z.optional(z.string()),
-  stockVitamin: z.optional(z.string()),
-  stockProtein: z.optional(z.string()),
-});
+// export const FormFoods = z.object({
+//   startDay: z.optional(z.string()),
+//   carbo: z.optional(z.string()),
+//   vitamin: z.optional(z.string()),
+//   protein: z.optional(z.string()),
+//   newCarbo: z.optional(z.string()),
+//   newVitamin: z.optional(z.string()),
+//   newProtein: z.optional(z.string()),
+//   stockCarbo: z.optional(z.string()),
+//   stockVitamin: z.optional(z.string()),
+//   stockProtein: z.optional(z.string()),
+// });
 
-export type FormFoods = z.infer<typeof FormFoods>;
+// export type FormFoods = z.infer<typeof FormFoods>;
 
 const useCategoryForm = (props: {
   category: string;
@@ -116,7 +117,12 @@ export const useFoodsForm = (props: {
   const [newVitamin, setNewVitamin, newVitaminForm] = useCategoryForm({
     category: "ビタミン",
     default: props.defaultFoods?.newVitamin,
-    key: "vitamin-stock",
+    key: "vitamin-new",
+  });
+  const [newOthers, setNewOthers, newOtherFoodsForm] = useCategoryForm({
+    category: "その他",
+    default: props.defaultFoods?.newVitamin,
+    key: "others-new",
   });
 
   const [stockCarbo, setStockCarbo, stockCarboForm] = useCategoryForm({
@@ -158,6 +164,7 @@ export const useFoodsForm = (props: {
           {newCarboForm}
           {newVitaminForm}
           {newProteinForm}
+          {newOtherFoodsForm}
         </div>
         <div>
           <h3>ストック</h3>
@@ -176,6 +183,7 @@ export const useFoodsForm = (props: {
     setNewProtein(foods.newProtein);
     setNewCarbo(foods.newCarbo);
     setNewVitamin(foods.newVitamin);
+    setNewOthers(foods.newOthers);
     setStockCarbo(foods.stockCarbo);
     setStockProtein(foods.stockProtein);
     setStockVitamin(foods.stockVitamin);
@@ -192,6 +200,7 @@ export const useFoodsForm = (props: {
       newCarbo,
       newProtein,
       newVitamin,
+      newOthers,
       stockCarbo,
       stockProtein,
       stockVitamin,
