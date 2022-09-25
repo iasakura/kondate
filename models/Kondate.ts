@@ -7,6 +7,7 @@ export type Meal = { p: Food; c: Food; v: Food[] };
 export type Kondate = {
   meals: Meal[];
   newFood?: string;
+  date: Date;
 }[];
 
 export const N = 7;
@@ -185,7 +186,7 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
     used2 = used1;
     used1 = [];
     const newFood = NEW_FOOD_DAY.includes(weekDay) ? queue.getNew() : undefined;
-    res.push({ meals: d, newFood });
+    res.push({ meals: d, newFood, date });
   }
 
   return res;

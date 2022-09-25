@@ -75,11 +75,7 @@ export const KondateSolver = (props: { defaultFoods?: Foods }) => {
       <button onClick={() => download(foods)}>ダウンロード</button>
       {shareURLButton}
       <input type="file" onChange={(ev) => handleFileChange(ev)} />
-      <div>
-        {kondate && (
-          <KondateTable kondate={kondate} startDay={foods.startDay} />
-        )}
-      </div>
+      <div>{kondate && <KondateTable kondate={kondate} />}</div>
       {totalOfFoods && (
         <div>
           <h3>合計料</h3>

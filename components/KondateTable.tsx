@@ -1,4 +1,3 @@
-import add from "date-fns/add";
 import format from "date-fns/format";
 import styled from "styled-components";
 import { Food, Meal, type Kondate } from "../models/Kondate";
@@ -48,17 +47,13 @@ const KondateItem = (props: { meal: Meal }) => {
 const timeEmoji = ["🌅", "🌞", "🌇"];
 const formatDate = (d: Date) => format(d, "MM/dd (eee)");
 
-export const KondateTable = (props: { kondate: Kondate; startDay: Date }) => {
-  const days = [...Array(10).keys()].map((i) =>
-    formatDate(add(new Date(props.startDay), { days: i }))
-  );
-
+export const KondateTable = (props: { kondate: Kondate }) => {
   return (
     <div style={{ display: "flex" }}>
       {props.kondate.map((day, i) => (
         <>
           <div style={{ marginRight: "3px" }}>
-            <div style={{ textAlign: "center" }}>{days[i]}</div>
+            <div style={{ textAlign: "center" }}>{formatDate(day.date)}</div>
             {day.meals.map((meal, j) =>
               meal != null ? (
                 i === 0 ? (
