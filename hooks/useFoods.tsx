@@ -119,9 +119,9 @@ export const useFoodsForm = (props: {
     default: props.defaultFoods?.newVitamin,
     key: "vitamin-new",
   });
-  const [newOthers, setNewOthers, newOtherFoodsForm] = useCategoryForm({
+  const [newOthers, setNewOthers, newOtherFoods] = useCategoryForm({
     category: "その他",
-    default: props.defaultFoods?.newVitamin,
+    default: props.defaultFoods?.newOthers,
     key: "others-new",
   });
 
@@ -164,7 +164,7 @@ export const useFoodsForm = (props: {
           {newCarboForm}
           {newVitaminForm}
           {newProteinForm}
-          {newOtherFoodsForm}
+          {newOtherFoods}
         </div>
         <div>
           <h3>ストック</h3>
