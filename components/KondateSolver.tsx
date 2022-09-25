@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { KondateTable } from "./KondateTable";
 import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
 import { saveAs } from "file-saver";
@@ -20,6 +20,12 @@ export const KondateSolver = (props: { defaultFoods?: Foods }) => {
   const [kondate, setKondate] = React.useState<Kondate | undefined>(undefined);
   const defaultFoods = props.defaultFoods;
   const { form: foodsForm, setFoods, foods } = useFoodsForm({ defaultFoods });
+
+  useEffect(() => {
+    if (defaultFoods) {
+      showKondate();
+    }
+  }, []);
 
   const showKondate = () => {
     const kondate = computeKondate(foods, foods.startDay);
