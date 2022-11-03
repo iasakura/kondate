@@ -12,7 +12,7 @@ export type Kondate = {
 
 export const N = 7;
 export const PER_DAY = 3;
-export const N_VITAMIN = 2;
+export const N_VITAMIN = 3;
 const NEW_FOOD_DAY = [0, 1, 2, 4, 5];
 
 const shuffle = <T>(array: T[]) => {

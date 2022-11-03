@@ -22,7 +22,7 @@ export const useDays = (): {
     []
   );
 
-  const days = [...Array(10).keys()].map((i) =>
+  const days = [...Array(7).keys()].map((i) =>
     formatDate(add(new Date(startDay), { days: i }))
   );
 
