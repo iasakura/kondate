@@ -4,8 +4,8 @@ import { Food, Meal, type Kondate } from "../models/Kondate";
 import { colors } from "../ui";
 
 const MealBoxWrapper = styled.div<{
-  row: string | number;
-  column: string | number;
+  row?: string | number;
+  column?: string | number;
   color: string;
   flex?: string;
 }>`
@@ -24,8 +24,8 @@ const MealBoxWrapper = styled.div<{
 const MealBox = (props: {
   color: string;
   children: React.ReactElement | string;
-  row: string | number;
-  column: string | number;
+  row?: string | number;
+  column?: string | number;
   flex?: string;
 }) => {
   return (
@@ -82,8 +82,8 @@ export const KondateTable = (props: { kondate: Kondate }) => {
     <table>
       <tr>
         <Td />
-        {props.kondate.map((k) => (
-          <Th key={k.date}>{k.date}</Th>
+        {props.kondate.map((k, i) => (
+          <Th key={i}>{formatDate(k.date)}</Th>
         ))}
       </tr>
       {timeEmoji.map((te, i) => (
@@ -105,9 +105,13 @@ export const KondateTable = (props: { kondate: Kondate }) => {
         <Th>新食材</Th>
         {props.kondate.map((k, i) => (
           <Td key={i}>
-            <MealBox color={colors[k.newFood.kind]} flex="1">
-              {k.newFood.name}
-            </MealBox>
+            {k.newFood != null ? (
+              <MealBox color={colors[k.newFood.kind]} flex="1">
+                {k.newFood.name}
+              </MealBox>
+            ) : (
+              "なし"
+            )}
           </Td>
         ))}
       </tr>
