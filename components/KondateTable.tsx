@@ -1,3 +1,5 @@
+import { isHoliday } from "@holiday-jp/holiday_jp";
+import { getDay } from "date-fns";
 import format from "date-fns/format";
 import styled from "styled-components";
 import { Food, Meal, type Kondate } from "../models/Kondate";
@@ -83,7 +85,19 @@ export const KondateTable = (props: { kondate: Kondate }) => {
       <tr>
         <Td />
         {props.kondate.map((k, i) => (
-          <Th key={i}>{formatDate(k.date)}</Th>
+          <Th
+            key={i}
+            style={{
+              color:
+                isHoliday(k.date) ||
+                getDay(k.date) === 0 ||
+                getDay(k.date) === 6
+                  ? "red"
+                  : undefined,
+            }}
+          >
+            {formatDate(k.date)}
+          </Th>
         ))}
       </tr>
       {timeEmoji.map((te, i) => (
