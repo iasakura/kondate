@@ -1,5 +1,7 @@
+import format from "date-fns/format";
 import styled from "styled-components";
 import { Food, Meal, type Kondate } from "../models/Kondate";
+import { colors } from "../ui";
 
 const MealBoxWrapper = styled.div<{
   row: string | number;
@@ -44,15 +46,15 @@ const foodToString = (food: Food): string =>
 const KondateItem = (props: { meal: Meal }) => {
   return (
     <div style={{ display: "grid", marginBottom: "3px" }}>
-      <MealBox color={"#FFFFCC"} row={1} column={"1 / 4"}>
+      <MealBox color={colors.carbon} row={1} column={"1 / 4"}>
         {foodToString(props.meal.c)}
       </MealBox>
-      <MealBox color={"#FFEEFF"} row={1} column={"4 / 7"}>
+      <MealBox color={colors.protein} row={1} column={"4 / 7"}>
         {foodToString(props.meal.p)}
       </MealBox>
       {props.meal.v.map((v, i) => (
         <MealBox
-          color={"#99FF99"}
+          color={colors.vitamin}
           key={i}
           row={2}
           column={`${2 * i + 1} / ${2 * i + 3}`}
@@ -65,6 +67,7 @@ const KondateItem = (props: { meal: Meal }) => {
 };
 
 const timeEmoji = ["🌅", "🌞", "🌇"];
+const formatDate = (d: Date) => format(d, "MM/dd (eee)");
 
 const Td = styled.td`
   text-align: center;
@@ -74,16 +77,13 @@ const Th = styled.td`
   text-align: center;
 `;
 
-export const KondateTable = (props: {
-  kondate: Kondate;
-  weekdays: string[];
-}) => {
+export const KondateTable = (props: { kondate: Kondate }) => {
   return (
     <table>
       <tr>
         <Td />
-        {props.weekdays.map((wd) => (
-          <Th key={wd}>{wd}</Th>
+        {props.kondate.map((k) => (
+          <Th key={k.date}>{k.date}</Th>
         ))}
       </tr>
       {timeEmoji.map((te, i) => (
@@ -104,7 +104,11 @@ export const KondateTable = (props: {
       <tr>
         <Th>新食材</Th>
         {props.kondate.map((k, i) => (
-          <Td key={i}>{k.newFood ?? "なし"}</Td>
+          <Td key={i}>
+            <MealBox color={colors[k.newFood.kind]} flex="1">
+              {k.newFood.name}
+            </MealBox>
+          </Td>
         ))}
       </tr>
     </table>

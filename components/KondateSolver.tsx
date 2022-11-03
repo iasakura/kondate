@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { KondateTable } from "./KondateTable";
-import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
+import {
+  computeKondate,
+  computeTotal,
+  TotalResult,
+  type Kondate,
+} from "../models/Kondate";
 import { saveAs } from "file-saver";
 
-import { DefaultFoods, Foods, useFoodsForm } from "../hooks/useFoods";
-import { useDays } from "../hooks/date";
+import { Foods, useFoodsForm } from "../hooks/useFoods";
 import { useDrop } from "../hooks/fileDrop";
 import { useShareURLButton } from "../hooks/useShareURL";
+import { colors } from "../ui";
+import { japaneseFoodName, KindWithOther } from "../models/foods";
 
 const download = (foods: Foods) => {
   saveAs(
@@ -17,26 +23,19 @@ const download = (foods: Foods) => {
   );
 };
 
-export const KondateSolver = (props: { defaultFoods?: DefaultFoods }) => {
-  const { form: weekdayForm, days: weekdays, startDay } = useDays();
-
+export const KondateSolver = (props: { defaultFoods?: Foods }) => {
   const [kondate, setKondate] = React.useState<Kondate | undefined>(undefined);
-  const defaultFoods = props.defaultFoods ?? {
-    carbo: undefined,
-    vitamin: undefined,
-    protein: undefined,
-    newCarbo: undefined,
-    newVitamin: undefined,
-    newProtein: undefined,
-    stockCarbo: undefined,
-    stockVitamin: undefined,
-    stockProtein: undefined,
-  };
-
+  const defaultFoods = props.defaultFoods;
   const { form: foodsForm, setFoods, foods } = useFoodsForm({ defaultFoods });
 
+  useEffect(() => {
+    if (defaultFoods) {
+      showKondate();
+    }
+  }, []);
+
   const showKondate = () => {
-    const kondate = computeKondate(foods, startDay);
+    const kondate = computeKondate(foods, foods.startDay);
     setKondate(kondate);
   };
 
@@ -78,28 +77,39 @@ export const KondateSolver = (props: { defaultFoods?: DefaultFoods }) => {
       onDragLeave={handleDragLeave}
       style={{ backgroundColor: isDraggedOver ? "#e1e7f0" : "#ffffff" }}
     >
-      <div>{weekdayForm}</div>
       {foodsForm}
       <button onClick={showKondate}>考える!</button>
       <button onClick={() => download(foods)}>ダウンロード</button>
       {shareURLButton}
       <input type="file" onChange={(ev) => handleFileChange(ev)} />
-      <div>
-        {kondate && <KondateTable kondate={kondate} weekdays={weekdays} />}
-      </div>
+      <div>{kondate && <KondateTable kondate={kondate} />}</div>
       {totalOfFoods && (
         <div>
           <h3>合計料</h3>
-          <div>
-            {Object.entries(totalOfFoods).map(([k, v]) => {
+          {(["carbon", "protein", "vitamin", "other"] as KindWithOther[]).map(
+            (kind) => {
               return (
-                // eslint-disable-next-line react/jsx-key
-                <div>
-                  {k}: {v}回
+                <div key={kind}>
+                  <h4>{japaneseFoodName[kind]}</h4>
+                  {totalOfFoods
+                    .filter(({ kind: k }) => k === kind)
+                    .map(({ name, total, kind }) => {
+                      return (
+                        <div
+                          style={{
+                            background: colors[kind],
+                            width: "fit-content",
+                          }}
+                          key={name}
+                        >
+                          {name}: {total}回
+                        </div>
+                      );
+                    })}
                 </div>
               );
-            })}
-          </div>
+            }
+          )}
         </div>
       )}
     </div>
