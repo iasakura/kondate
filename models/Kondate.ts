@@ -166,7 +166,7 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
 
     for (let meal = 0; meal < PER_DAY; ++meal) {
       // 平日はお昼なし
-      if (meal === 1 && ((1 <= weekDay && weekDay <= 5) || isHoliday(date))) {
+      if (meal === 1 && 1 <= weekDay && weekDay <= 5 && !isHoliday(date)) {
         d.push(undefined);
         continue;
       }
