@@ -3,25 +3,38 @@ import styled from "styled-components";
 import { Food, Meal, type Kondate } from "../models/Kondate";
 import { colors } from "../ui";
 
-const MealBoxWrapper = styled.div<{ color: string; flex?: string }>`
+const MealBoxWrapper = styled.div<{
+  row?: string | number;
+  column?: string | number;
+  color: string;
+  flex?: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 7rem;
+  min-width: 4rem;
   text-align: center
   overflow: hidden;
   border: solid 1px white;
   background-color: ${(props) => props.color};
-  flex: ${(props) => (props.flex !== undefined ? props.flex : "1")}
+  grid-row: ${(props) => props.row};
+  grid-column: ${(props) => props.column};
 `;
 
 const MealBox = (props: {
   color: string;
   children: React.ReactElement | string;
+  row?: string | number;
+  column?: string | number;
   flex?: string;
 }) => {
   return (
-    <MealBoxWrapper color={props.color} flex={props.flex}>
+    <MealBoxWrapper
+      color={props.color}
+      flex={props.flex}
+      row={props.row}
+      column={props.column}
+    >
       <span>{props.children}</span>
     </MealBoxWrapper>
   );
@@ -32,19 +45,23 @@ const foodToString = (food: Food): string =>
 
 const KondateItem = (props: { meal: Meal }) => {
   return (
-    <div style={{ display: "block", marginBottom: "3px" }}>
-      <div style={{ display: "flex" }}>
-        <MealBox color={colors.carbon}>{foodToString(props.meal.c)}</MealBox>
-        <MealBox color={colors.protein}>{foodToString(props.meal.p)}</MealBox>
-      </div>
-      <div style={{ display: "flex" }}>
-        <MealBox color={colors.vitamin}>
-          {foodToString(props.meal.v[0])}
+    <div style={{ display: "grid", marginBottom: "3px" }}>
+      <MealBox color={colors.carbon} row={1} column={"1 / 4"}>
+        {foodToString(props.meal.c)}
+      </MealBox>
+      <MealBox color={colors.protein} row={1} column={"4 / 7"}>
+        {foodToString(props.meal.p)}
+      </MealBox>
+      {props.meal.v.map((v, i) => (
+        <MealBox
+          color={colors.vitamin}
+          key={i}
+          row={2}
+          column={`${2 * i + 1} / ${2 * i + 3}`}
+        >
+          {foodToString(props.meal.v[i])}
         </MealBox>
-        <MealBox color={colors.vitamin}>
-          {foodToString(props.meal.v[1])}
-        </MealBox>
-      </div>
+      ))}
     </div>
   );
 };
@@ -52,43 +69,52 @@ const KondateItem = (props: { meal: Meal }) => {
 const timeEmoji = ["🌅", "🌞", "🌇"];
 const formatDate = (d: Date) => format(d, "MM/dd (eee)");
 
+const Td = styled.td`
+  text-align: center;
+`;
+
+const Th = styled.td`
+  text-align: center;
+`;
+
 export const KondateTable = (props: { kondate: Kondate }) => {
   return (
-    <div style={{ display: "flex" }}>
-      {props.kondate.map((day, i) => (
-        <>
-          <div style={{ marginRight: "3px" }}>
-            <div style={{ textAlign: "center" }}>{formatDate(day.date)}</div>
-            {day.meals.map((meal, j) =>
-              meal != null ? (
-                i === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <div> {timeEmoji[j]} </div>
-                    <KondateItem meal={meal} />
-                  </div>
-                ) : (
-                  <KondateItem meal={meal} />
-                )
-              ) : (
-                <div />
-              )
-            )}
-            {day.newFood &&
-              (i === 0 ? (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div>新</div>
-                  <MealBox color={colors[day.newFood.kind]} flex="1">
-                    {day.newFood.name}
-                  </MealBox>
-                </div>
-              ) : (
-                <MealBox color={colors[day.newFood.kind]}>
-                  {day.newFood.name}
-                </MealBox>
-              ))}
-          </div>
-        </>
+    <table>
+      <tr>
+        <Td />
+        {props.kondate.map((k, i) => (
+          <Th key={i}>{formatDate(k.date)}</Th>
+        ))}
+      </tr>
+      {timeEmoji.map((te, i) => (
+        <tr key={i}>
+          <Th>{te}</Th>
+          {props.kondate.map((k) => {
+            const meal = k.meals[i];
+            return meal != null ? (
+              <Td>
+                <KondateItem meal={meal} />{" "}
+              </Td>
+            ) : (
+              <Td>ごはんなし</Td>
+            );
+          })}
+        </tr>
       ))}
-    </div>
+      <tr>
+        <Th>新食材</Th>
+        {props.kondate.map((k, i) => (
+          <Td key={i}>
+            {k.newFood != null ? (
+              <MealBox color={colors[k.newFood.kind]} flex="1">
+                {k.newFood.name}
+              </MealBox>
+            ) : (
+              "なし"
+            )}
+          </Td>
+        ))}
+      </tr>
+    </table>
   );
 };

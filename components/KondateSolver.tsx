@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { KondateTable } from "./KondateTable";
-import {
-  computeKondate,
-  computeTotal,
-  TotalResult,
-  type Kondate,
-} from "../models/Kondate";
+import { computeKondate, computeTotal, type Kondate } from "../models/Kondate";
 import { saveAs } from "file-saver";
 
 import { Foods, useFoodsForm } from "../hooks/useFoods";

@@ -1,3 +1,4 @@
+import { isHoliday } from "@holiday-jp/holiday_jp";
 import add from "date-fns/add";
 import getDay from "date-fns/getDay";
 import { Foods } from "../hooks/useFoods";
@@ -6,14 +7,14 @@ import { Kind, KindWithOther } from "./foods";
 export type Food = { food: string; isStock: boolean };
 export type Meal = { p: Food; c: Food; v: Food[] };
 export type Kondate = {
-  meals: Meal[];
+  meals: (Meal | undefined)[];
   newFood?: { name: string; kind: KindWithOther };
   date: Date;
 }[];
 
 export const N = 7;
-export const PER_DAY = 2;
-export const N_VITAMIN = 2;
+export const PER_DAY = 3;
+export const N_VITAMIN = 3;
 const NEW_FOOD_DAY = [1, 2, 3, 5, 6];
 
 const shuffle = <T>(array: T[]) => {
@@ -161,9 +162,14 @@ export const computeKondate = (foods: Foods, startDay: Date): Kondate => {
     const date = add(startDay, { days: day });
     const weekDay = getDay(date);
 
-    const d: Meal[] = [];
+    const d: (Meal | undefined)[] = [];
 
     for (let meal = 0; meal < PER_DAY; ++meal) {
+      // 平日はお昼なし
+      if (meal === 1 && ((1 <= weekDay && weekDay <= 5) || isHoliday(date))) {
+        d.push(undefined);
+        continue;
+      }
       const c =
         meal === 0
           ? { food: "米", isStock: false }
@@ -214,9 +220,11 @@ export const computeTotal = (kondate: Kondate | undefined): TotalResult => {
 
   kondate?.forEach((day) => {
     day.meals.forEach((meal) => {
-      addToTotal(meal.c, "carbon");
-      addToTotal(meal.p, "protein");
-      meal.v.forEach((v) => addToTotal(v, "vitamin"));
+      if (meal != null) {
+        addToTotal(meal.c, "carbon");
+        addToTotal(meal.p, "protein");
+        meal.v.forEach((v) => addToTotal(v, "vitamin"));
+      }
     });
     if (day.newFood !== undefined) {
       addToTotal({ food: day.newFood.name, isStock: false }, day.newFood.kind);
